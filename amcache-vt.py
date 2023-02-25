@@ -20,7 +20,8 @@ from tqdm import tqdm                                   # progress bar
 
 # virus total query class/object
 class queryVirusTotal:
-    vt_api_token = None #MUST SUPPLY YOUR TOKEN HERE
+    # vt_api_token = None #MUST SUPPLY YOUR TOKEN HERE
+
 
     def __init__(self):
         print ("Initializing queryVirusTotal")
@@ -82,12 +83,21 @@ class amcacheParser:
                         item['consensus'] = 'harmless'
                     elif item['total_votes']['harmless'] < item['total_votes']['malicious']:
                         item['consensus'] = 'malicious'
+                    elif item['total_votes']['harmless'] == item['total_votes']['malicious'] and item['total_votes']['harmless'] >0:
+                        item['consensus'] = 'questionable'
                     else:
                         item['consensus'] = 'unknown'
+                if item.get('full_path')==None:
+                    item['full_path'] = ''
+                if item.get('total_votes') == None:
+                    item['total_votes'] = {'harmless': 0, 'malicious': 0}
+                    item['consensus'] = "unknown"
+                if item.get('last_modified_timestamp_2')==None:
+                    item['last_modified_timestamp_2'] = ''
 
-                    if counter > self.query_limit and self.limit_query==True:
-                        print ("Query limit reached")
-                        return
+                if counter > self.query_limit and self.limit_query==True:
+                    print ("Query limit reached")
+                    return
                 self.results.append(item)
             counter+=1
 
@@ -97,15 +107,18 @@ class amcacheParser:
         cprint("   [Harmless/Malicious Votes] :  concensus : filepath : sha1", 'green')
         cprint("   ========================", 'green')
         for item in self.results:
-            displayLine = "   [H:" + str(item['total_votes']['harmless']) + " / M:" + \
-                          str(item['total_votes']['malicious']) + "] : " + str(item['consensus']) \
-                          + " : " + str(item['full_path']) + " : " + item['sha1']
-            if item['consensus'] == 'unknown':
-                cprint(displayLine, 'yellow')
-            elif item['consensus'] == 'malicious':
-                cprint(displayLine, 'red')
-            elif item['consensus'] == 'harmless':
-                cprint(displayLine, 'green')
+            if item.get('sha1'):
+                displayLine = "   [H:" + str(item['total_votes']['harmless']) + " / M:" + \
+                              str(item['total_votes']['malicious']) + "] : " + str(item['consensus']) \
+                              + " : " + str(item['full_path']) + " : " + item['sha1']
+                if item['consensus'] == 'unknown':
+                    cprint(displayLine, 'yellow')
+                elif item['consensus'] == 'malicious':
+                    cprint(displayLine, 'red')
+                elif item['consensus'] == 'questionable':
+                    cprint(displayLine, 'cyan')
+                elif item['consensus'] == 'harmless':
+                    cprint(displayLine, 'green')
 
         cprint("   -------------------------", 'green')
 
