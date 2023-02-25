@@ -1,0 +1,5 @@
+setuptools~=60.2.0
+virustotal3~=1.0.8
+regipy~=3.1.5
+termcolor~=2.2.0
+tqdm~=4.64.1
