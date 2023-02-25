@@ -12,6 +12,7 @@ from regipy.registry import RegistryHive                # Registry Parser
 from regipy.plugins.utils import run_relevant_plugins
 import virustotal3.core                                 # Virustotal API
 import argparse
+from os.path import exists
 
 # just for making display better/prettier ---
 from pprint import pprint                               # pretty print (json display)
@@ -21,7 +22,6 @@ from tqdm import tqdm                                   # progress bar
 # virus total query class/object
 class queryVirusTotal:
     # vt_api_token = None #MUST SUPPLY YOUR TOKEN HERE
-
 
     def __init__(self):
         print ("Initializing queryVirusTotal")
@@ -151,7 +151,10 @@ def argParser():
 if __name__ == '__main__':
     args = argParser()
 
-    amcache_obj=amcacheParser(args['amcache'], args['output'], args['limit'])
-    amcache_obj.display_results()
-    amcache_obj.save_csv_results()
+    if exists(args['amcache']):
+        amcache_obj=amcacheParser(args['amcache'], args['output'], args['limit'])
+        amcache_obj.display_results()
+        amcache_obj.save_csv_results()
+    else:
+        cprint ("Error: amcache file does not exist", 'red')
 
